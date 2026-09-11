@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ágora Gamer - Educación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        agora: {
+                            green: '#8DAA25',
+                            olive: '#929449',
+                            orange: '#F7931E'
+                        }
+                    },
+                    fontFamily: {
+                        primary: ['"Maven Pro"', 'sans-serif'],
+                        secondary: ['"Delius"', 'cursive'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Delius&family=Maven+Pro:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Maven Pro', sans-serif;
+            background-color: #f4f7eb; /* Tono muy suave derivado del verde */
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .title-font {
+            font-family: 'Delius', cursive;
+        }
+
+        /* Utilidades para ocultar/mostrar pantallas */
+        .screen { display: none; min-height: 100vh; flex-direction: column; }
+        .screen.active { display: flex; }
+
+        /* Animaciones */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .floating { animation: float 3s ease-in-out infinite; }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .slide-in { animation: slideIn 0.5s ease-out forwards; }
+
+        /* Estilos del Canvas del Juego */
+        #gameCanvas {
+            background: linear-gradient(to bottom, #1e293b, #0f172a);
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e8ebda; }
+        ::-webkit-scrollbar-thumb { background: #8DAA25; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #929449; }
+    </style>
+</head>
+<body class="text-gray-800">
+
+<!-- PANTALLA 1: SELECCIÓN DE SEDE Y GRADO -->
+<div id="screen-login" class="screen active items-center justify-center bg-gradient-to-br from-agora-green to-agora-olive p-4 relative overflow-hidden">
+    <!-- Decoración de fondo -->
+    <div class="absolute inset-0 pointer-events-none opacity-20">
+        <div class="absolute top-10 left-10 w-40 h-40 bg-white rounded-full mix-blend-overlay filter blur-2xl"></div>
+        <div class="absolute bottom-10 right-10 w-60 h-60 bg-agora-orange rounded-full mix-blend-overlay filter blur-2xl"></div>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center slide-in relative z-10 border-4 border-white/50 backdrop-blur-sm">
+        
+        <!-- Logo Oficial Ágora -->
+        <div class="flex justify-center mb-6">
+            <img src="logo-agora.jpg" alt="Ágora Education" class="h-20 object-contain">
+        </div>
+
+        <!-- Mascota Agorito -->
+        <div class="floating mb-2 flex justify-center -mt-4">
+            <img src="Agorito4.jpeg" alt="Agorito Saludando" class="h-36 w-36 object-cover rounded-full shadow-lg border-4 border-agora-green bg-white">
+        </div>
+        
+        <h1 class="text-4xl text-agora-green mb-1 title-font font-bold">Ágora Gamer</h1>
+        <p class="text-gray-500 mb-6 font-semibold">¡Aprende y diviértete con Agorito!</p>
+
+        <div class="space-y-4">
+            <!-- Selector de Nombre -->
+            <div class="text-left">
+                <label class="block text-sm font-bold text-gray-700 mb-1">Tu Nombre (Alias):</label>
+                <input type="text" id="nombre-input" placeholder="Ej. Edinson" class="w-full border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-agora-orange transition-colors text-gray-700 font-bold placeholder-gray-400">
+            </div>
+
+            <!-- Selector de Sede -->
+            <div class="text-left">
+                <label class="block text-sm font-bold text-gray-700 mb-1">Selecciona tu Sede:</label>
+                <select id="sede-select" class="w-full border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-agora-green transition-colors cursor-pointer text-gray-700 font-semibold">
+                    <option value="" disabled selected>Elige tu sede...</option>
+                    <option value="Huancavelica">Huancavelica</option>
+                    <option value="Chanchamayo">Chanchamayo</option>
+                    <option value="Tarma">Tarma</option>
+                    <option value="Huancayo">Huancayo</option>
+                </select>
+            </div>
+
+            <!-- Selector de Grado -->
+            <div class="text-left">
+                <label class="block text-sm font-bold text-gray-700 mb-1">Selecciona tu Grado:</label>
+                <select id="grado-select" class="w-full border-2 border-gray-200 rounded-xl p-3 focus:outline-none focus:border-agora-olive transition-colors cursor-pointer text-gray-700 font-semibold">
+                    <option value="" disabled selected>Elige tu grado...</option>
+                    <optgroup label="Primaria">
+                        <option value="5p">5to de Primaria</option>
+                        <option value="6p">6to de Primaria</option>
+                    </optgroup>
+                    <optgroup label="Secundaria">
+                        <option value="1s">1er Año de Secundaria</option>
+                        <option value="2s">2do Año de Secundaria</option>
+                        <option value="3s">3er Año de Secundaria</option>
+                        <option value="4s">4to Año de Secundaria</option>
+                        <option value="5s">5to Año de Secundaria</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <button onclick="intentarIngresar()" class="w-full bg-agora-orange hover:bg-[#e08216] text-white title-font text-2xl py-3 rounded-xl shadow-[0_5px_0_#b5660b] active:shadow-[0_0px_0_#b5660b] active:translate-y-[5px] transition-all mt-6">
+                ¡EMPEZAR A JUGAR!
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE CONSTRUCCIÓN -->
+<div id="modal-construccion" class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center hidden backdrop-blur-sm">
+    <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center mx-4 transform scale-95 transition-transform duration-300 border-4 border-agora-olive">
+        <div class="flex justify-center mb-4 floating">
+            <img src="Agorito2.jpeg" alt="Agorito Pensando" class="w-24 h-24 rounded-full shadow-md object-cover">
+        </div>
+        <h2 class="text-3xl title-font text-agora-olive mb-2">¡Nivel en Construcción!</h2>
+        <p class="text-gray-600 mb-6">Agorito está preparando las misiones para este grado muy pronto.</p>
+        <p class="text-sm font-bold text-agora-green mb-6">Por ahora, prueba seleccionando "1er Año de Secundaria".</p>
+        <button onclick="cerrarModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-full transition-colors">
+            Entendido
+        </button>
+    </div>
+</div>
+
+<!-- PANTALLA 2: DASHBOARD DEL ESTUDIANTE -->
+<div id="screen-dashboard" class="screen">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md p-3 flex justify-between items-center sticky top-0 z-40 border-b-4 border-agora-green">
+        <div class="flex items-center gap-4">
+            <img src="Agorito1.jpeg" alt="Avatar" class="w-12 h-12 rounded-full border-2 border-agora-green object-cover shadow-sm">
+            <div>
+                <h2 id="nombre-estudiante-display" class="title-font text-xl text-agora-olive font-bold">Estudiante</h2>
+                <p id="info-estudiante" class="text-xs text-gray-500 font-bold uppercase">Sede | Grado</p>
+            </div>
+        </div>
+        <div class="flex gap-4 items-center">
+            <img src="logo-agora.jpg" alt="Logo" class="h-8 hidden md:block opacity-80 mr-4">
+            <button onclick="volverInicio()" class="text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors" title="Salir">
+                <i class="fas fa-sign-out-alt text-xl"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <div class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full flex flex-col md:flex-row gap-6">
+        
+        <!-- Sidebar Izquierdo: Podio y Cursos -->
+        <div class="w-full md:w-1/3 space-y-6">
+            
+            <!-- PODIO / RACHA ACTUAL -->
+            <div class="bg-gradient-to-br from-agora-orange to-[#e58310] rounded-3xl p-6 shadow-xl text-white relative overflow-hidden transform transition-all hover:-translate-y-1">
+                <!-- Decoración -->
+                <div class="absolute -right-6 -bottom-6 opacity-20 pointer-events-none">
+                    <i class="fas fa-trophy text-9xl"></i>
+                </div>
+                
+                <div class="relative z-10 flex items-center gap-4 mb-4">
+                    <img src="Agorito deportista.jpg" alt="Agorito Campeón" class="w-16 h-16 rounded-full border-2 border-white shadow-lg object-cover bg-white">
+                    <div>
+                        <h3 class="title-font text-2xl drop-shadow-md">Salón de la Fama</h3>
+                        <p class="text-sm font-semibold opacity-90">¡Intenta superar esta racha!</p>
+                    </div>
+                </div>
+
+                <div class="bg-white/20 backdrop-blur-md rounded-2xl p-4 border border-white/40 shadow-inner">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-bold text-xl drop-shadow-sm truncate mr-2" title="Nombre Campeón">
+                            <i class="fas fa-crown text-yellow-300 mr-2 animate-bounce"></i> <span id="podio-nombre">Edinson</span>
+                        </span>
+                        <span class="bg-white text-agora-orange px-4 py-1.5 rounded-full font-bold title-font text-lg shadow-sm whitespace-nowrap">
+                            <span id="podio-racha">100</span> pts
+                        </span>
+                    </div>
+                    <p class="text-sm text-white/90 font-medium ml-8"><i class="fas fa-map-marker-alt mr-1"></i> <span id="podio-sede">Chanchamayo</span></p>
+                </div>
+            </div>
+
+            <!-- Lista de Cursos -->
+            <div>
+                <h3 class="title-font text-2xl text-agora-green mb-4"><i class="fas fa-book-open"></i> Tus Cursos</h3>
+                
+                <button onclick="mostrarTemario('aritmetica')" class="w-full text-left bg-white rounded-2xl p-4 shadow-sm hover:shadow-md border-l-8 border-agora-green transition-all transform hover:-translate-y-1 mb-4 group">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-lg text-gray-800 group-hover:text-agora-green transition-colors">Aritmética</h4>
+                            <p class="text-sm text-gray-500">Bimestre I a IV</p>
+                        </div>
+                        <i class="fas fa-calculator text-3xl text-agora-green opacity-40 group-hover:opacity-100 transition-opacity"></i>
+                    </div>
+                </button>
+
+                <button onclick="mostrarTemario('algebra')" class="w-full text-left bg-white rounded-2xl p-4 shadow-sm hover:shadow-md border-l-8 border-agora-olive transition-all transform hover:-translate-y-1 mb-4 group">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-lg text-gray-800 group-hover:text-agora-olive transition-colors">Álgebra</h4>
+                            <p class="text-sm text-gray-500">Bimestre I a IV</p>
+                        </div>
+                        <i class="fas fa-square-root-variable text-3xl text-agora-olive opacity-40 group-hover:opacity-100 transition-opacity"></i>
+                    </div>
+                </button>
+                
+                <!-- Cursos bloqueados por ahora -->
+                <div class="w-full text-left bg-gray-100/50 rounded-2xl p-4 border-l-8 border-gray-300 cursor-not-allowed">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-lg text-gray-400">Geometría</h4>
+                            <p class="text-sm text-gray-400">Próximamente</p>
+                        </div>
+                        <i class="fas fa-lock text-2xl text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de Temario / Misiones -->
+        <div class="w-full md:w-2/3">
+            <div class="bg-white rounded-3xl shadow-lg p-6 h-full border-t-8 border-agora-green relative overflow-hidden flex flex-col">
+                <!-- Marca de agua sutil -->
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-5 w-96 h-96 pointer-events-none">
+                    <img src="logo-agora.jpg" class="w-full h-full object-contain filter grayscale">
+                </div>
+
+                <div id="temario-vacio" class="flex-grow flex flex-col items-center justify-center text-gray-400 text-center relative z-10">
+                    <div class="floating mb-4">
+                        <img src="Agorito2.jpeg" alt="Agorito Pensando" class="w-36 h-36 rounded-full object-cover shadow-sm border-2 border-gray-100">
+                    </div>
+                    <h3 class="title-font text-3xl text-agora-olive mb-2">¡Hola! Selecciona un curso</h3>
+                    <p class="text-gray-500 text-lg">Elige un curso en el panel izquierdo para ver tus misiones disponibles.</p>
+                </div>
+
+                <!-- Contenedor del Temario Activo -->
+                <div id="temario-contenido" class="hidden relative z-10 flex-grow flex flex-col">
+                    <div class="flex justify-between items-center mb-6 border-b-2 border-gray-100 pb-4">
+                        <h3 id="temario-titulo" class="title-font text-4xl">Curso</h3>
+                        <span id="temario-icono" class="text-4xl"></span>
+                    </div>
+
+                    <div class="space-y-6 flex-grow overflow-y-auto pr-2 custom-scrollbar" id="lista-misiones" style="max-height: 65vh;">
+                        <!-- Las misiones se inyectarán aquí con JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PANTALLA 3: INTERFAZ DEL JUEGO -->
+<div id="screen-game" class="screen bg-gray-900 justify-center items-center relative overflow-hidden p-4">
+    
+    <!-- Decoración espacial de fondo para los bordes -->
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjMGYxNzJhIj48L3JlY3Q+CjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMSI+PC9yZWN0Pgo8L3N2Zz4=')] opacity-50 pointer-events-none"></div>
+
+    <!-- Botón volver (flotante) -->
+    <button onclick="salirJuego()" class="absolute top-4 left-4 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-full w-12 h-12 flex items-center justify-center backdrop-blur-md transition-all z-50 shadow-lg">
+        <i class="fas fa-arrow-left text-xl"></i>
+    </button>
+
+    <!-- UI del Juego (HUD) -->
+    <div class="absolute top-4 right-4 flex gap-4 z-50">
+        <div class="bg-black/40 backdrop-blur-md px-5 py-2 rounded-2xl text-white font-bold text-2xl border border-white/10 shadow-lg flex items-center">
+            <i class="fas fa-star text-agora-orange mr-3 text-xl"></i> <span id="game-score" class="title-font">0</span>
+        </div>
+        <div class="bg-black/40 backdrop-blur-md px-5 py-2 rounded-2xl text-white font-bold text-2xl border border-white/10 shadow-lg flex items-center">
+            <i class="fas fa-heart text-red-500 mr-3 text-xl"></i> <span id="game-lives" class="title-font">3</span>
+        </div>
+    </div>
+
+    <!-- Instrucciones Modal -->
+    <div id="game-intro" class="absolute inset-0 bg-black/85 z-40 flex flex-col items-center justify-center text-center p-6 text-white backdrop-blur-sm">
+        <div class="floating mb-6">
+            <img src="Agorito2.jpeg" alt="Agorito Instrucciones" class="h-44 w-44 object-cover rounded-full border-4 border-agora-green shadow-[0_0_30px_rgba(141,170,37,0.5)]">
+        </div>
+        <h2 class="title-font text-5xl mb-4 text-agora-green drop-shadow-lg" id="game-title-hud">Misión Ágora</h2>
+        <p class="text-xl mb-8 max-w-xl text-gray-200" id="game-desc-hud">Destruye los meteoritos resolviendo las operaciones matemáticas. ¡No dejes que impacten en la nave Ágora!</p>
+        
+        <div class="bg-gray-800/80 p-6 rounded-2xl mb-8 border border-agora-olive text-left space-y-4 max-w-md shadow-inner">
+            <div class="flex items-center gap-3">
+                <div class="bg-agora-orange p-2 rounded-lg text-white"><i class="fas fa-mouse-pointer"></i></div>
+                <p class="text-gray-200">Haz clic en la respuesta correcta rápidamente.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="bg-red-500 p-2 rounded-lg text-white"><i class="fas fa-bomb"></i></div>
+                <p class="text-gray-200">Pierdes vidas si te equivocas o si el meteorito cae.</p>
+            </div>
+        </div>
+
+        <button onclick="iniciarJuego()" class="bg-agora-green hover:bg-[#7a941e] text-white title-font text-3xl py-4 px-12 rounded-full shadow-[0_6px_0_#5a6e15] active:shadow-[0_0px_0_#5a6e15] active:translate-y-[6px] transform transition-all tracking-wide">
+            ¡INICIAR MISIÓN!
+        </button>
+    </div>
+
+    <!-- Game Over Screen Modal -->
+    <div id="game-over" class="absolute inset-0 bg-black/90 z-50 flex flex-col items-center justify-center text-center p-6 text-white hidden backdrop-blur-md">
+        
+        <!-- Contenedor Dinámico para Récord o Fallo -->
+        <div id="game-over-icon" class="mb-6 floating">
+            <img src="Agorito deportista.jpg" id="game-over-img" alt="Agorito Fin" class="h-48 w-48 object-cover rounded-full border-4 border-agora-orange shadow-[0_0_40px_rgba(247,147,30,0.6)]">
+        </div>
+        
+        <h2 id="game-over-title" class="title-font text-6xl mb-2 text-agora-orange drop-shadow-lg">¡Misión Terminada!</h2>
+        
+        <div class="bg-white/10 rounded-2xl p-6 my-6 border border-white/20 min-w-[300px]">
+            <p class="text-gray-300 text-lg mb-1 uppercase tracking-widest">Puntaje Final</p>
+            <p class="text-5xl text-agora-green font-bold title-font drop-shadow-md"><span id="final-score">0</span> pts</p>
+        </div>
+
+        <p id="high-score-msg" class="text-2xl text-yellow-400 font-bold mb-8 h-8 drop-shadow-md"></p>
+        
+        <div class="flex gap-4">
+            <button onclick="prepararJuego()" class="bg-agora-green hover:bg-[#7a941e] text-white font-bold text-xl py-3 px-8 rounded-xl transition-colors shadow-[0_5px_0_#5a6e15] active:translate-y-[5px] active:shadow-none flex items-center">
+                <i class="fas fa-redo mr-2"></i> Reintentar
+            </button>
+            <button onclick="salirJuego()" class="bg-gray-600 hover:bg-gray-700 text-white font-bold text-xl py-3 px-8 rounded-xl transition-colors shadow-[0_5px_0_#4b5563] active:translate-y-[5px] active:shadow-none">
+                Salir
+            </button>
+        </div>
+    </div>
+
+    <!-- Contenedor del Canvas -->
+    <div class="relative w-full max-w-4xl flex flex-col items-center mt-12 md:mt-0">
+        <!-- Area de dibujo 2D -->
+        <canvas id="gameCanvas" width="800" height="600" class="w-full aspect-[4/3] bg-transparent border-4 border-gray-800/50"></canvas>
+        
+        <!-- Botonera de respuestas -->
+        <div id="answer-buttons" class="absolute bottom-4 w-full px-4 md:px-12 flex justify-center gap-3 md:gap-6 z-30 opacity-0 transition-opacity duration-300 pointer-events-none">
+            <!-- Botones generados por JS -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- DATOS DEL TEMARIO ---
+    const temarioData = {
+        aritmetica: {
+            titulo: "Aritmética",
+            icono: '<i class="fas fa-calculator"></i>',
+            colorTheme: 'green',
+            bloques: [
+                {
+                    nombre: "Bimestre I",
+                    temas: [
+                        { id: 'ar_1_1', nombre: "Adición y Sustracción", jugable: true },
+                        { id: 'ar_1_2', nombre: "Multiplicación y División", jugable: false },
+                        { id: 'ar_1_3', nombre: "Operaciones Combinadas", jugable: false }
+                    ]
+                },
+                {
+                    nombre: "Bimestre II",
+                    temas: [
+                        { id: 'ar_2_1', nombre: "Numeración I", jugable: false },
+                        { id: 'ar_2_2', nombre: "Divisibilidad I", jugable: false }
+                    ]
+                }
+            ]
+        },
+        algebra: {
+            titulo: "Álgebra",
+            icono: '<i class="fas fa-square-root-variable"></i>',
+            colorTheme: 'olive',
+            bloques: [
+                {
+                    nombre: "Bimestre I",
+                    temas: [
+                        { id: 'al_1_1', nombre: "Conjuntos Numéricos", jugable: false },
+                        { id: 'al_1_2', nombre: "Operaciones en Z", jugable: false }
+                    ]
+                }
+            ]
+        }
+    };
+
+    // --- SISTEMA DE USUARIO Y RACHA (SALÓN DE LA FAMA) ---
+    let usuarioActual = { nombre: '', sede: '', grado: '' };
+    
+    // Récord inicial para incentivar la competencia
+    let recordActual = {
+        nombre: 'Edinson',
+        sede: 'Chanchamayo',
+        puntaje: 150
+    };
+
+    // --- FUNCIONES DE NAVEGACIÓN E INTERFAZ ---
+    function cambiarPantalla(idPantalla) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(idPantalla).classList.add('active');
+    }
+
+    function intentarIngresar() {
+        const nombreInput = document.getElementById('nombre-input');
+        const sedeSelect = document.getElementById('sede-select');
+        const gradoSelect = document.getElementById('grado-select');
+
+        let isValid = true;
+        
+        // Validación visual simple
+        [nombreInput, sedeSelect, gradoSelect].forEach(el => {
+            if (!el.value.trim()) {
+                el.classList.add('border-red-500');
+                setTimeout(() => el.classList.remove('border-red-500'), 1000);
+                isValid = false;
+            }
+        });
+
+        if (!isValid) return;
+
+        usuarioActual.nombre = nombreInput.value.trim();
+        usuarioActual.sede = sedeSelect.options[sedeSelect.selectedIndex].text;
+        usuarioActual.grado = gradoSelect.options[gradoSelect.selectedIndex].text;
+
+        // Validación de construcción (solo 1s está "disponible")
+        if (gradoSelect.value !== '1s') {
+            document.getElementById('modal-construccion').classList.remove('hidden');
+            setTimeout(() => document.querySelector('#modal-construccion > div').classList.remove('scale-95'), 10);
+        } else {
+            // Actualizar datos en Dashboard
+            document.getElementById('nombre-estudiante-display').textContent = `¡Hola, ${usuarioActual.nombre}!`;
+            document.getElementById('info-estudiante').textContent = `${usuarioActual.sede} | ${usuarioActual.grado}`;
+            
+            actualizarPodioUI();
+            cambiarPantalla('screen-dashboard');
+        }
+    }
+
+    function actualizarPodioUI() {
+        document.getElementById('podio-nombre').textContent = recordActual.nombre;
+        document.getElementById('podio-racha').textContent = recordActual.puntaje;
+        document.getElementById('podio-sede').textContent = recordActual.sede;
+    }
+
+    function cerrarModal() {
+        document.querySelector('#modal-construccion > div').classList.add('scale-95');
+        setTimeout(() => document.getElementById('modal-construccion').classList.add('hidden'), 300);
+    }
+
+    function volverInicio() {
+        cambiarPantalla('screen-login');
+        document.getElementById('temario-vacio').classList.remove('hidden');
+        document.getElementById('temario-contenido').classList.add('hidden');
+    }
+
+    function mostrarTemario(cursoId) {
+        const curso = temarioData[cursoId];
+        if(!curso) return;
+
+        document.getElementById('temario-vacio').classList.add('hidden');
+        document.getElementById('temario-contenido').classList.remove('hidden');
+        
+        // Estilos dinámicos basados en el curso
+        const tituloEl = document.getElementById('temario-titulo');
+        const iconoEl = document.getElementById('temario-icono');
+        
+        tituloEl.textContent = curso.titulo;
+        iconoEl.innerHTML = curso.icono;
+
+        let primaryColorClass = curso.colorTheme === 'green' ? 'text-agora-green' : 'text-agora-olive';
+        let bgBadgeClass = curso.colorTheme === 'green' ? 'bg-agora-green' : 'bg-agora-olive';
+        let borderClass = curso.colorTheme === 'green' ? 'border-agora-green' : 'border-agora-olive';
+        
+        tituloEl.className = `title-font text-4xl font-bold ${primaryColorClass}`;
+        iconoEl.className = `text-4xl ${primaryColorClass}`;
+
+        const contenedor = document.getElementById('lista-misiones');
+        contenedor.innerHTML = ''; 
+
+        curso.bloques.forEach(bloque => {
+            const bloqueDiv = document.createElement('div');
+            bloqueDiv.className = 'bg-gray-50 rounded-2xl p-5 border border-gray-200 shadow-sm';
+            
+            let temasHtml = '';
+            bloque.temas.forEach(tema => {
+                if (tema.jugable) {
+                    temasHtml += `
+                        <button onclick="prepararJuego('${cursoId}', '${tema.id}', '${tema.nombre}')" class="w-full flex items-center justify-between p-4 mt-3 bg-white rounded-xl shadow-sm border-2 border-transparent hover:${borderClass} hover:shadow-md transition-all group">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-gray-100 group-hover:bg-gray-200 p-3 rounded-full ${primaryColorClass} group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-gamepad text-lg"></i>
+                                </div>
+                                <span class="font-bold text-gray-700 text-lg text-left">${tema.nombre}</span>
+                            </div>
+                            <span class="${bgBadgeClass} text-white text-xs font-bold px-4 py-2 rounded-full uppercase tracking-widest shadow-sm">Jugar</span>
+                        </button>
+                    `;
+                } else {
+                    temasHtml += `
+                        <div class="w-full flex items-center justify-between p-4 mt-3 bg-white rounded-xl border border-gray-100 opacity-60">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-gray-100 p-3 rounded-full text-gray-400">
+                                    <i class="fas fa-lock text-lg"></i>
+                                </div>
+                                <span class="text-gray-500 font-medium text-lg text-left">${tema.nombre}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            bloqueDiv.innerHTML = `
+                <h4 class="font-bold text-gray-800 mb-3 border-b-2 border-gray-200 pb-2 text-xl"><i class="fas fa-folder-open text-gray-400 mr-2"></i> ${bloque.nombre}</h4>
+                <div class="space-y-3">
+                    ${temasHtml}
+                </div>
+            `;
+            contenedor.appendChild(bloqueDiv);
+        });
+    }
+
+    // --- MOTOR DEL JUEGO ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let gameLoopId;
+    let isPlaying = false;
+    
+    // Variables de estado del juego
+    let score = 0;
+    let lives = 3;
+    let meteoritos = [];
+    let particulas = [];
+    let respuestaCorrecta = 0;
+    let opcionesActuales = [];
+    
+    // Configuración Base (Nave)
+    const playerBase = { x: canvas.width / 2, y: canvas.height - 40, width: 80, height: 40 };
+
+    function prepararJuego(cursoId, temaId, temaNombre) {
+        // En un caso real se cargaría la lógica según el curso. 
+        // Aquí usamos Adición y Sustracción básica.
+        
+        document.getElementById('game-title-hud').textContent = "Misión: " + (temaNombre || 'Aritmética');
+        document.getElementById('game-intro').classList.remove('hidden');
+        document.getElementById('game-over').classList.add('hidden');
+        document.getElementById('answer-buttons').classList.add('opacity-0', 'pointer-events-none');
+        
+        score = 0;
+        lives = 3;
+        actualizarHUD();
+        dibujarEscenaEstatica(); 
+        
+        cambiarPantalla('screen-game');
+    }
+
+    function iniciarJuego() {
+        document.getElementById('game-intro').classList.add('hidden');
+        document.getElementById('answer-buttons').classList.remove('opacity-0', 'pointer-events-none');
+        
+        score = 0;
+        lives = 3;
+        meteoritos = [];
+        particulas = [];
+        actualizarHUD();
+        isPlaying = true;
+        
+        generarProblema();
+        
+        if(gameLoopId) cancelAnimationFrame(gameLoopId);
+        gameLoop();
+    }
+
+    function salirJuego() {
+        isPlaying = false;
+        if(gameLoopId) cancelAnimationFrame(gameLoopId);
+        cambiarPantalla('screen-dashboard');
+    }
+
+    function actualizarHUD() {
+        document.getElementById('game-score').textContent = score;
+        document.getElementById('game-lives').textContent = lives;
+        if(lives <= 0 && isPlaying) {
+            terminarJuego();
+        }
+    }
+
+    function terminarJuego() {
+        isPlaying = false;
+        document.getElementById('game-over').classList.remove('hidden');
+        document.getElementById('final-score').textContent = score;
+        document.getElementById('answer-buttons').classList.add('opacity-0', 'pointer-events-none');
+
+        // LÓGICA DE SALÓN DE LA FAMA (RACHA)
+        const msgEl = document.getElementById('high-score-msg');
+        const imgEl = document.getElementById('game-over-img');
+        const titleEl = document.getElementById('game-over-title');
+
+        if (score > recordActual.puntaje) {
+            // ¡Nuevo récord!
+            recordActual = {
+                nombre: usuarioActual.nombre,
+                sede: usuarioActual.sede,
+                puntaje: score
+            };
+            
+            msgEl.textContent = "¡NUEVO RÉCORD ÁGORA!";
+            msgEl.className = "text-2xl text-yellow-400 font-bold mb-8 h-8 drop-shadow-md animate-pulse";
+            
+            imgEl.src = "Agorito deportista.jpg";
+            imgEl.className = "h-48 w-48 object-cover rounded-full border-4 border-yellow-400 shadow-[0_0_50px_rgba(250,204,21,0.8)] bg-white";
+            
+            titleEl.textContent = "¡Felicidades Campeón!";
+            titleEl.className = "title-font text-5xl mb-2 text-yellow-400 drop-shadow-lg";
+            
+            actualizarPodioUI(); // Actualizar el dashboard
+        } else {
+            // No superó récord
+            msgEl.textContent = `Récord actual: ${recordActual.puntaje} pts (${recordActual.nombre})`;
+            msgEl.className = "text-lg text-gray-300 mb-8 h-8";
+            
+            imgEl.src = "Agorito1.jpeg";
+            imgEl.className = "h-48 w-48 object-cover rounded-full border-4 border-gray-500 shadow-lg bg-white";
+            
+            titleEl.textContent = "¡Sigue practicando!";
+            titleEl.className = "title-font text-5xl mb-2 text-agora-orange drop-shadow-lg";
+        }
+    }
+
+    function generarProblema() {
+        const tipo = Math.random() > 0.5 ? 'suma' : 'resta';
+        let num1, num2, texto;
+
+        if (tipo === 'suma') {
+            num1 = Math.floor(Math.random() * 50) + 10;
+            num2 = Math.floor(Math.random() * 50) + 10;
+            respuestaCorrecta = num1 + num2;
+            texto = `${num1} + ${num2}`;
+        } else {
+            num1 = Math.floor(Math.random() * 100) + 20;
+            num2 = Math.floor(Math.random() * num1); 
+            respuestaCorrecta = num1 - num2;
+            texto = `${num1} - ${num2}`;
+        }
+
+        meteoritos.push({
+            x: Math.random() * (canvas.width - 200) + 100,
+            y: -60,
+            radius: 45,
+            text: texto,
+            speed: 0.8 + (score * 0.03) // Incremento sutil de dificultad
+        });
+
+        generarOpciones(respuestaCorrecta);
+    }
+
+    function generarOpciones(correcta) {
+        opcionesActuales = [correcta];
+        while (opcionesActuales.length < 3) {
+            let offset = Math.floor(Math.random() * 20) - 10;
+            if (offset === 0) offset = 5;
+            let falsa = correcta + offset;
+            if (!opcionesActuales.includes(falsa) && falsa >= 0) {
+                opcionesActuales.push(falsa);
+            }
+        }
+        opcionesActuales.sort(() => Math.random() - 0.5);
+        renderizarBotonesRespuesta();
+    }
+
+    function renderizarBotonesRespuesta() {
+        const contenedor = document.getElementById('answer-buttons');
+        contenedor.innerHTML = '';
+        opcionesActuales.forEach(opcion => {
+            const btn = document.createElement('button');
+            // Usando colores de Agora (Naranja para botones)
+            btn.className = "flex-1 bg-agora-orange hover:bg-[#e08216] border-2 border-[#ffb359] text-white title-font text-3xl py-5 md:py-6 rounded-2xl shadow-[0_8px_0_#b5660b] active:shadow-[0_0px_0_#b5660b] active:translate-y-[8px] transition-all pointer-events-auto font-bold";
+            btn.textContent = opcion;
+            btn.onclick = () => verificarRespuesta(opcion);
+            contenedor.appendChild(btn);
+        });
+    }
+
+    function verificarRespuesta(seleccion) {
+        if (!isPlaying) return;
+
+        if (seleccion === respuestaCorrecta) {
+            // Correcto
+            if (meteoritos.length > 0) {
+                crearExplosion(meteoritos[0].x, meteoritos[0].y, '#8DAA25'); // Verde Agora
+                meteoritos.shift(); 
+                score += 10;
+                actualizarHUD();
+                setTimeout(generarProblema, 400); 
+            }
+        } else {
+            // Incorrecto
+            lives--;
+            crearExplosion(playerBase.x, playerBase.y - 30, '#ef4444'); // Rojo error
+            actualizarHUD();
+            
+            const btnContainer = document.getElementById('answer-buttons');
+            btnContainer.classList.add('animate-bounce');
+            setTimeout(() => btnContainer.classList.remove('animate-bounce'), 500);
+        }
+    }
+
+    function crearExplosion(x, y, color) {
+        for(let i=0; i<25; i++){
+            particulas.push({
+                x: x, y: y,
+                vx: (Math.random() - 0.5) * 10,
+                vy: (Math.random() - 0.5) * 10,
+                life: 1.0,
+                color: color,
+                size: Math.random() * 4 + 2
+            });
+        }
+    }
+
+    function dibujarEscenaEstatica() {
+        // Fondo (cielo nocturno)
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Estrellas
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        for(let i=0; i<80; i++) {
+            ctx.beginPath();
+            ctx.arc(Math.random()*canvas.width, Math.random()*canvas.height, Math.random()*2, 0, Math.PI*2);
+            ctx.fill();
+        }
+
+        // Nave Ágora
+        // Cuerpo principal (Verde Agora)
+        ctx.fillStyle = '#8DAA25';
+        ctx.beginPath();
+        ctx.moveTo(playerBase.x, playerBase.y - 35); // Punta
+        ctx.lineTo(playerBase.x - playerBase.width/2, playerBase.y + playerBase.height/2); // Ala Izq
+        ctx.lineTo(playerBase.x + playerBase.width/2, playerBase.y + playerBase.height/2); // Ala Der
+        ctx.fill();
+        
+        // Detalles Nave (Naranja Agora)
+        ctx.fillStyle = '#F7931E';
+        ctx.beginPath();
+        ctx.arc(playerBase.x, playerBase.y + 5, 12, 0, Math.PI*2);
+        ctx.fill();
+
+        // Propulsores
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.moveTo(playerBase.x - 15, playerBase.y + playerBase.height/2);
+        ctx.lineTo(playerBase.x, playerBase.y + playerBase.height);
+        ctx.lineTo(playerBase.x + 15, playerBase.y + playerBase.height/2);
+        ctx.fill();
+    }
+
+    function gameLoop() {
+        if(!isPlaying) return;
+
+        dibujarEscenaEstatica();
+
+        ctx.font = "bold 24px 'Maven Pro', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        // Meteoritos
+        for (let i = 0; i < meteoritos.length; i++) {
+            let m = meteoritos[i];
+            m.y += m.speed;
+
+            // Halo del meteorito
+            const grad = ctx.createRadialGradient(m.x, m.y, m.radius/2, m.x, m.y, m.radius*1.2);
+            grad.addColorStop(0, '#f87171');
+            grad.addColorStop(1, 'transparent');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(m.x, m.y, m.radius*1.2, 0, Math.PI*2);
+            ctx.fill();
+
+            // Cuerpo del meteorito (Olivo oscuro)
+            ctx.fillStyle = '#4a4c25'; 
+            ctx.beginPath();
+            ctx.arc(m.x, m.y, m.radius, 0, Math.PI*2);
+            ctx.fill();
+            
+            ctx.strokeStyle = '#929449'; // Agora Olive
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // Texto de la operación
+            ctx.fillStyle = 'white';
+            ctx.shadowColor = "black";
+            ctx.shadowBlur = 4;
+            ctx.fillText(m.text, m.x, m.y);
+            ctx.shadowBlur = 0; // reset
+
+            // Colisión con la base
+            if (m.y + m.radius > canvas.height - 70) { 
+                crearExplosion(m.x, m.y, '#F7931E'); // Naranja explosion
+                meteoritos.splice(i, 1);
+                i--;
+                lives--;
+                actualizarHUD();
+                if(lives > 0) setTimeout(generarProblema, 400);
+            }
+        }
+
+        // Partículas
+        for (let i = 0; i < particulas.length; i++) {
+            let p = particulas[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life -= 0.04;
+
+            ctx.globalAlpha = Math.max(0, p.life);
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+
+            if (p.life <= 0) {
+                particulas.splice(i, 1);
+                i--;
+            }
+        }
+
+        gameLoopId = requestAnimationFrame(gameLoop);
+    }
+
+    // Inicialización
+    window.onload = () => {
+        dibujarEscenaEstatica();
+    };
+
+</script>
+</body>
+</html>
